@@ -1,148 +1,39 @@
+<?php
+require 'config.php';
+$msg = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $user  = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $pass  = $_POST['password'];
+
+    // Step 15: Securely hash password before storing
+    $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
+
+    try {
+        $stmt = $conn->prepare("INSERT INTO users (username, password, email) VALUES (?, ?, ?)");
+        $stmt->execute([$user, $hashed_password, $email]);
+        $msg = "User <strong>" . htmlspecialchars($user) . "</strong> registered successfully! <a href='login.php'>Proceed to Login</a>";
+    } catch (PDOException $e) {
+        $msg = "Registration error: Username or Email already exists.";
+    }
+}
+?>
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
-  <link rel="stylesheet" href="css/style1.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-</head>
-
-<body>
-  <div class="container">
-    <div class="form-box box">
-
-
-      <header>Sign Up</header>
-      <hr>
-
-      <form action="#" method="POST">
-
-
-        <div class="form-box">
-
-          <?php
-
-          session_start();
-
-          include "connection.php";
-
-          if (isset($_POST['register'])) {
-
-            $name = $_POST['username'];
-            $email = $_POST['email'];
-            $pass = $_POST['password'];
-            $cpass = $_POST['cpass'];
-
-
-            $check = "select * from users where email='{$email}'";
-
-            $res = mysqli_query($conn, $check);
-
-            $passwd = password_hash($pass, PASSWORD_DEFAULT);
-
-            $key = bin2hex(random_bytes(12));
-
-
-
-
-            if (mysqli_num_rows($res) > 0) {
-              echo "<div class='message'>
-        <p>This email is used, Try another One Please!</p>
-        </div><br>";
-
-              echo "<a href='javascript:self.history.back()'><button class='btn'>Go Back</button></a>";
-
-
-            } else {
-
-              if ($pass === $cpass) {
-
-                $sql = "insert into users(username,email,password) values('$name','$email','$passwd')";
-
-                $result = mysqli_query($conn, $sql);
-
-                if ($result) {
-
-                  echo "<div class='message'>
-      <p>You are register successfully!</p>
-      </div><br>";
-
-                  echo "<a href='login.php'><button class='btn'>Login Now</button></a>";
-
-                } else {
-                  echo "<div class='message'>
-        <p>This email is used, Try another One Please!</p>
-        </div><br>";
-
-                  echo "<a href='javascript:self.history.back()'><button class='btn'>Go Back</button></a>";
-                }
-
-              } else {
-                echo "<div class='message'>
-      <p>Password does not match.</p>
-      </div><br>";
-
-                echo "<a href='signup.php'><button class='btn'>Go Back</button></a>";
-              }
-            }
-          } else {
-
-            ?>
-
-            <div class="input-container">
-              <i class="fa fa-user icon"></i>
-              <input class="input-field" type="text" placeholder="Username" name="username" required>
-            </div>
-
-            <div class="input-container">
-              <i class="fa fa-envelope icon"></i>
-              <input class="input-field" type="email" placeholder="Email Address" name="email" required>
-            </div>
-
-            <div class="input-container">
-              <i class="fa fa-lock icon"></i>
-              <input class="input-field password" type="password" placeholder="Password" name="password" required>
-              <i class="fa fa-eye icon toggle"></i>
-            </div>
-
-            <div class="input-container">
-              <i class="fa fa-lock icon"></i>
-              <input class="input-field" type="password" placeholder="Confirm Password" name="cpass" required>
-              <i class="fa fa-eye icon"></i>
-            </div>
-
-          </div>
-
-
-          <center><input type="submit" name="register" id="submit" value="Signup" class="btn"></center>
-
-
-          <div class="links">
-            Already have an account? <a href="login.php">Signin Now</a>
-          </div>
-
-        </form>
-      </div>
-      <?php
-          }
-          ?>
-  </div>
-
-  <script>
-    const toggle = document.querySelector(".toggle"),
-      input = document.querySelector(".password");
-    toggle.addEventListener("click", () => {
-      if (input.type === "password") {
-        input.type = "text";
-        toggle.classList.replace("fa-eye-slash", "fa-eye");
-      } else {
-        input.type = "password";
-      }
-    })
-  </script>
+<html>
+<head><title>Group 1 - Sign Up</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 420px; margin: 50px auto;">
+    <h2>Group 1 Member Signup</h2>
+    <?php if ($msg) echo "<p style='color: green;'>$msg</p>"; ?>
+    <form method="POST" action="">
+        <label>Username:</label><br>
+        <input type="text" name="username" required style="width:100%; padding:8px; margin:6px 0 12px;"><br>
+        <label>Email:</label><br>
+        <input type="email" name="email" required style="width:100%; padding:8px; margin:6px 0 12px;"><br>
+        <label>Password:</label><br>
+        <input type="password" name="password" required style="width:100%; padding:8px; margin:6px 0 16px;"><br>
+        <button type="submit" style="padding:10px 18px;">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="login.php">Login here</a></p>
 </body>
-
 </html>
